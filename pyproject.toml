@@ -1,0 +1,104 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "work-graph-middleware"
+version = "0.3.0rc1"
+description = "Durable evidence-driven work orchestration middleware for Deep Agents"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [{name = "bigbatmanorg"}]
+keywords = ["agents", "dag", "workflow", "deepagents", "middleware", "evidence", "orchestration"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Typing :: Typed",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3",
+  "pytest-cov>=6.0",
+  "hypothesis>=6.130",
+  "ruff>=0.12",
+  "mypy>=1.17",
+  "build>=1.2",
+]
+deepagents = [
+  "deepagents>=0.7.13,<0.8",
+  "langchain>=1.4,<2",
+  "langchain-openai>=1.0",
+  "langgraph>=1.0,<2",
+]
+live = [
+  "deepagents>=0.7.13,<0.8",
+  "langchain>=1.4,<2",
+  "langchain-openai>=1.0",
+  "langgraph>=1.0,<2",
+]
+all = [
+  "deepagents>=0.7.13,<0.8",
+  "langchain>=1.4,<2",
+  "langchain-openai>=1.0",
+  "langgraph>=1.0,<2",
+  "pytest>=8.3",
+  "pytest-cov>=6.0",
+  "hypothesis>=6.130",
+  "ruff>=0.12",
+  "mypy>=1.17",
+  "build>=1.2",
+]
+
+[project.scripts]
+work-graph = "work_graph_middleware.presentation.cli:main"
+work-graph-certify = "work_graph_middleware.testing.certification:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/work_graph_middleware"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra -m 'not live'"
+markers = [
+  "live: requires a configured external model endpoint and Deep Agents extras",
+  "integration: exercises Deep Agents/LangChain integration and may need optional deps",
+  "slow: long-running deterministic or stress test",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "RUF"]
+
+[tool.ruff.lint.per-file-ignores]
+# Error-code strings contain regex metacharacters intentionally; test matching
+# validates the stable public code prefix rather than regex syntax.
+"tests/**/*.py" = ["RUF043"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+packages = ["work_graph_middleware"]
+mypy_path = "src"
+
+[tool.coverage.run]
+branch = true
+source = ["work_graph_middleware"]
+omit = [
+  "*/integrations/*",
+  "*/testing/*",
+  "*/presentation/cli.py",
+]
+
+[tool.coverage.report]
+fail_under = 95
+show_missing = true
+skip_covered = false
